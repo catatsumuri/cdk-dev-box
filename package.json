@@ -2,7 +2,7 @@
   "name": "cdk-dev-box",
   "version": "0.1.0",
   "bin": {
-    "cdk-dev-box": "bin/cdk-dev-box.js"
+    "cdk-dev-box": "bin/app.js"
   },
   "scripts": {
     "build": "tsc",
