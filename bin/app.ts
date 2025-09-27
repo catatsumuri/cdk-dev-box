@@ -1,20 +1,26 @@
 #!/usr/bin/env node
 import * as cdk from 'aws-cdk-lib';
+import * as fs from 'fs';
+import * as path from 'path';
 import { CdkDevBoxStack } from '../lib/cdk-dev-box-stack';
+import { Config } from '../config/config';
 
+function loadConfig(): Config {
+  const configPath = path.join(__dirname, '..', 'config', 'config.json');
+  if (!fs.existsSync(configPath)) {
+    throw new Error(`Config file not found at ${configPath}`);
+  }
+  const configContent = fs.readFileSync(configPath, 'utf-8');
+  return JSON.parse(configContent) as Config;
+}
+
+const config = loadConfig();
 const app = new cdk.App();
+
 new CdkDevBoxStack(app, 'CdkDevBoxStack', {
-  /* If you don't specify 'env', this stack will be environment-agnostic.
-   * Account/Region-dependent features and context lookups will not work,
-   * but a single synthesized template can be deployed anywhere. */
-
-  /* Uncomment the next line to specialize this stack for the AWS Account
-   * and Region that are implied by the current CLI configuration. */
-  // env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
-
-  /* Uncomment the next line if you know exactly what Account and Region you
-   * want to deploy the stack to. */
-  // env: { account: '123456789012', region: 'us-east-1' },
-
-  /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
+  env: {
+    account: config.account,
+    region: config.region,
+  },
+  config,
 });
