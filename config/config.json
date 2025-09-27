@@ -1,0 +1,9 @@
+{
+  "account": "1234567890",
+  "region": "ap-northeast-1",
+  "debianAmiOwner": "136693071363",
+  "keyPairName": "your_key_name",
+  "gitUsername": "Your Git Name",
+  "gitEmail": "yourgitemail@example.org",
+  "instanceSize": "SMALL"
+}
