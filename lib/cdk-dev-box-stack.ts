@@ -4,10 +4,12 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as s3assets from 'aws-cdk-lib/aws-s3-assets';
 import * as path from 'path';
 import { Construct } from 'constructs';
+import { SpotInstance } from 'cdk-ec2-spot-simple';
 import { Config } from '../config/config';
 
 export interface CdkDevBoxStackProps extends cdk.StackProps {
   config: Config;
+  env?: cdk.Environment;
 }
 
 export class CdkDevBoxStack extends cdk.Stack {
@@ -94,6 +96,17 @@ export class CdkDevBoxStack extends cdk.Stack {
       vpcSubnets: {
         subnetType: ec2.SubnetType.PUBLIC,
       },
+    };
+
+    const instance = config.useSpot
+      ? new SpotInstance(this, 'DevBoxInstance', {
+          ...instanceProps,
+          spotOptions: {
+            interruptionBehavior: ec2.SpotInstanceInterruption.STOP,
+            requestType: ec2.SpotRequestType.PERSISTENT
+          }
+        })
+      : new ec2.Instance(this, 'DevBoxInstance', instanceProps);
     });
 
     // インスタンスロールにCloudFormation権限を追加

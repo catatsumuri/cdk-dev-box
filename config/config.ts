@@ -6,4 +6,5 @@ export interface Config {
   gitUsername: string;
   gitEmail: string;
   instanceSize: string;
+  useSpot: boolean;
 }
