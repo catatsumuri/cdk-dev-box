@@ -75,8 +75,8 @@ export class CdkDevBoxStack extends cdk.Stack {
       '/tmp/userdata.sh > /var/log/userdata.log 2>&1'
     );
 
-    // Create EC2 instance
-    const instance = new ec2.Instance(this, 'DevBoxInstance', {
+    // Create common instance properties
+    const instanceProps = {
       vpc,
       instanceType: ec2.InstanceType.of(ec2.InstanceClass.T4G, ec2.InstanceSize[config.instanceSize as keyof typeof ec2.InstanceSize]),
       machineImage: debianAmi,
@@ -98,6 +98,7 @@ export class CdkDevBoxStack extends cdk.Stack {
       },
     };
 
+    // Create EC2 instance (spot or on-demand based on config)
     const instance = config.useSpot
       ? new SpotInstance(this, 'DevBoxInstance', {
           ...instanceProps,
@@ -107,11 +108,9 @@ export class CdkDevBoxStack extends cdk.Stack {
           }
         })
       : new ec2.Instance(this, 'DevBoxInstance', instanceProps);
-    });
 
     // インスタンスロールにCloudFormation権限を追加
-    const role = instance.role;
-    role.addToPrincipalPolicy(new iam.PolicyStatement({
+    instance.role.addToPrincipalPolicy(new iam.PolicyStatement({
       actions: [
         "cloudformation:DescribeStacks",
         "cloudformation:DescribeStackResources",
@@ -123,8 +122,8 @@ export class CdkDevBoxStack extends cdk.Stack {
     }));
 
     // S3アセットへのアクセス権限を追加
-    userdataAsset.grantRead(role);
-    configAsset.grantRead(role);
+    userdataAsset.grantRead(instance.role);
+    configAsset.grantRead(instance.role);
 
     // Output instance ID and public IP
     new cdk.CfnOutput(this, 'InstanceId', {
