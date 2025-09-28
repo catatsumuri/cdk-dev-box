@@ -75,8 +75,8 @@ export class CdkDevBoxStack extends cdk.Stack {
       '/tmp/userdata.sh > /var/log/userdata.log 2>&1'
     );
 
-    // Create EC2 instance based on configuration
-    const instanceProps = {
+    // Create EC2 instance
+    const instance = new ec2.Instance(this, 'DevBoxInstance', {
       vpc,
       instanceType: ec2.InstanceType.of(ec2.InstanceClass.T4G, ec2.InstanceSize[config.instanceSize as keyof typeof ec2.InstanceSize]),
       machineImage: debianAmi,
@@ -107,6 +107,7 @@ export class CdkDevBoxStack extends cdk.Stack {
           }
         })
       : new ec2.Instance(this, 'DevBoxInstance', instanceProps);
+    });
 
     // インスタンスロールにCloudFormation権限を追加
     const role = instance.role;

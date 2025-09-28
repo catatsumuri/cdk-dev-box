@@ -5,6 +5,6 @@
   "keyPairName": "your_key_name",
   "gitUsername": "Your Git Name",
   "gitEmail": "yourgitemail@example.org",
-  "instanceSize": "SMALL",
   "useSpot": true
+  "instanceSize": "SMALL"
 }
