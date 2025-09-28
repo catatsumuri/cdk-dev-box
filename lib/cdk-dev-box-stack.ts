@@ -125,6 +125,25 @@ export class CdkDevBoxStack extends cdk.Stack {
     userdataAsset.grantRead(instance.role);
     configAsset.grantRead(instance.role);
 
+    // --- Temporary Admin AssumeRole setup ---
+    const adminRole = new iam.Role(this, 'DevBoxAdminRole', {
+      roleName: 'DevBox-AdminRole',
+      assumedBy: new iam.ArnPrincipal(instance.role.roleArn),
+      managedPolicies: [
+        iam.ManagedPolicy.fromAwsManagedPolicyName('AdministratorAccess'),
+      ],
+      maxSessionDuration: cdk.Duration.hours(1),
+      description: 'Temporary elevation role for DevBox (acts like sudo)',
+    });
+
+    // allow the instance role to call sts:AssumeRole into DevBox-AdminRole
+    instance.role.addToPrincipalPolicy(
+      new iam.PolicyStatement({
+        actions: ['sts:AssumeRole'],
+        resources: [adminRole.roleArn],
+      }),
+    );
+
     // Output instance ID and public IP
     new cdk.CfnOutput(this, 'InstanceId', {
       value: instance.instanceId,
